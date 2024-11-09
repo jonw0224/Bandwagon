@@ -23,8 +23,9 @@ while True:
     try:
         stocks = finnhub_client.stock_symbols('US')
         break
-    except (finnhub.exceptions.FinnhubAPIException, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+    except (finnhub.exceptions.FinnhubAPIException, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
         # Because I'm using the free API, I'm limited to one API call per second
+        print(e)
         time.sleep(1)
 
 # Record the price for each stock in a seperate CSV file
@@ -39,7 +40,8 @@ for stock in stocks:
         try:
             quote = finnhub_client.quote(stock['symbol'])
             break
-        except (finnhub.exceptions.FinnhubAPIException, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+        except (finnhub.exceptions.FinnhubAPIException, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
+            print(e)
             time.sleep(1)
     # Get the trading recommendation
     if quote is not None: 
@@ -54,7 +56,8 @@ for stock in stocks:
                     break
                 except IndexError:
                     break
-                except (finnhub.exceptions.FinnhubAPIException, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+                except (finnhub.exceptions.FinnhubAPIException, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
+                    print(e)
                     time.sleep(1)
             if recommend is not None:
                 print(recommend)
