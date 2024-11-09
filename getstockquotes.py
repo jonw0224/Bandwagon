@@ -1,4 +1,9 @@
-# Import library and interface files
+###############################################################################
+# Author: Jonathan Weaver
+# Date: 11/8/2024
+###############################################################################
+
+# # Import library and interface files
 import finnhub
 import csv
 import time
