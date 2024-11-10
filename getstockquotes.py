@@ -25,7 +25,6 @@
 # 1.01 - 2024-11-09 - Added error correction for robustness of internet
 #                     connection and finnhub API timeouts. 
 #
-#
 # Copyright (C) 2024 Jonathan Weaver
 #
 # This program is free software: you can redistribute it and/or modify
