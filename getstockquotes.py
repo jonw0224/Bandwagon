@@ -1,12 +1,49 @@
+#!/usr/bin/python3
+#
 ###############################################################################
-# Author: Jonathan Weaver
-# Date: 11/8/2024
-# Version: 1.0
-
-
+#  
+# getstockquotes.py
+#
+# Usage: getstockquotes.py
+#
+# Use the finnhub API to retrieve a daily list of stock prices in the US 
+# stock market. This file should be run as part of a cron job at 5:00 PM, EST
+# Monday thru Friday using the following:
+#
+# sudo crontab -e
+# 
+# 0 17 * * 1-5 sh /[path to getstockquotes]/getStockQuotes.sh
+#
+# The retrieval takes around 8 hours to complete using the free finnhub API
+# rates of 60 calls per minute.
+#
+#
+# Author: Jonathan Weaver, jonw0224@gmail.com
+# Date: 11/9/2024
+# Version: 
+# 1.00 - 2024-11-08 - Wrote code
+# 1.01 - 2024-11-09 - Added error correction for robustness of internet
+#                     connection and finnhub API timeouts. 
+#
+#
+# Copyright (C) 2024 Jonathan Weaver
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
 ###############################################################################
 
-# # Import library and interface files
+# Import library and interface files
 import finnhub
 import csv
 import time
@@ -14,8 +51,9 @@ import os
 import requests
 import time 
 
-startTime = time.time()
-# Setup client
+# Time execution
+# startTime = time.time()
+# Setup client and connect to finnhub
 finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
 
 # Get a list of stocks
@@ -25,8 +63,12 @@ while True:
         break
     except finnhub.exceptions.FinnhubAPIException as e:
         print(e)
-        # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
-        time.sleep(10)
+        if (e.status_code == 429):
+            # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
+            time.sleep(10)
+        else:
+            # Reestablish client
+            finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
         print(e)
         # Wait and then try again
@@ -46,8 +88,12 @@ for stock in stocks:
             break
         except finnhub.exceptions.FinnhubAPIException as e:
             print(e)
-            # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
-            time.sleep(10)
+            if (e.status_code == 429):
+                # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
+                time.sleep(10)
+            else:
+                # Reestablish client connection
+                finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
             print(e)
             # Wait and then try again
@@ -67,8 +113,12 @@ for stock in stocks:
                     break
                 except finnhub.exceptions.FinnhubAPIException as e:
                     print(e)
-                    # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
-                    time.sleep(10)
+                    if (e.status_code == 429):
+                        # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
+                        time.sleep(10)
+                    else:
+                        # Reestablish client connection
+                        finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
                     print(e)
                     # Wait and then try again
@@ -118,6 +168,7 @@ else:
         writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
         # Write data
         writer.writerows(csvdata)
+# Finish timing of execution and add it to the log
 endTime = time.time()
 duration = endTime - startTime
 print(duration)
