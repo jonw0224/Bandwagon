@@ -56,7 +56,7 @@ startTime = time.time()
 finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
 
 # Get a list of stocks
-for i in rang(100)
+for i in range(100):
     try:
         stocks = finnhub_client.stock_symbols('US')
         break
@@ -90,7 +90,7 @@ for stock in stocks:
 
     # Get the stock price quote
     quote = None
-    for i in range(100)
+    for i in range(100):
         try:
             quote = finnhub_client.quote(stock['symbol'])
             break
@@ -118,7 +118,7 @@ for stock in stocks:
         print(quote)
         if quote['d'] is not None:         
             recommend = None
-            for i in range(100)
+            for i in range(100):
                 try:
                     recommend = finnhub_client.recommendation_trends(stock['symbol'])[0]
                     break
