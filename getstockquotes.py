@@ -51,12 +51,12 @@ import requests
 import time 
 
 # Time execution
-# startTime = time.time()
+startTime = time.time()
 # Setup client and connect to finnhub
 finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
 
 # Get a list of stocks
-while True:
+for i in rang(100)
     try:
         stocks = finnhub_client.stock_symbols('US')
         break
@@ -72,16 +72,25 @@ while True:
         print(e)
         # Wait and then try again
         time.sleep(1)
+    else:
+        print(e)
+        # Wait and then try again
+        time.sleep(1)
 
 # Record the price for each stock in a seperate CSV file
 f = open("log.txt", "w")
 f.write("Number of stocks: " + str(len(stocks)) + '\n')
 print(len(stocks))
 csvdata = None
+# This line is commented out while debugging
 for stock in stocks:
+# The next two lines are uncommented for debugging
+# #for i in range(20):
+#    stock = stocks[i]
+
     # Get the stock price quote
     quote = None
-    while True:
+    for i in range(100)
         try:
             quote = finnhub_client.quote(stock['symbol'])
             break
@@ -97,6 +106,11 @@ for stock in stocks:
             print(e)
             # Wait and then try again
             time.sleep(1)
+        else:
+            print(e)
+            # Wait and then try again
+            time.sleep(1)
+
     # Get the trading recommendation
     if quote is not None: 
         f.write(stock['symbol'] + '\n')
@@ -104,7 +118,7 @@ for stock in stocks:
         print(quote)
         if quote['d'] is not None:         
             recommend = None
-            while True:
+            for i in range(100)
                 try:
                     recommend = finnhub_client.recommendation_trends(stock['symbol'])[0]
                     break
@@ -122,6 +136,10 @@ for stock in stocks:
                     print(e)
                     # Wait and then try again
                     time.sleep(1)
+                else:
+                    print(e)
+                    # Wait and then try again
+                    time.sleep(1)
             if recommend is not None:
                 print(recommend)
             # To give feedback
@@ -134,7 +152,14 @@ for stock in stocks:
             else:
                 csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], recommend['period'], recommend['strongBuy'], recommend['buy'], recommend['hold'], recommend['sell'], recommend['strongSell']]
             filepath = "PriceData/" + stock['symbol'] + ".csv"
-            csvdata = [csvdata, csvrow]
+
+            # Save data for summary csv file
+            if csvdata is None:
+                csvdata = [csvrow]
+            else:
+                csvdata.append(csvrow)
+            
+            #Save individual csv file for each stock symbol
             if os.path.exists(filepath):
                 # If file exists, open CSV as append
                 with open(filepath, 'a', newline='') as csvfile:
@@ -152,13 +177,16 @@ for stock in stocks:
         else:
             print("Quote is empty")
             f.write("Quote is empty\n")
+
+# Save the summary CSV file with all of the stock information
 filepath = "stockQuotes.csv"
+print(csvdata)
 if os.path.exists(filepath):
     # If file exists, open CSV as append
     with open(filepath, 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         # Write data to end of file
-        writer.writerowa(csvdata)
+        writer.writerows(csvdata)
 else:
     # File does not exist, open CSV as write
     with open(filepath, 'w', newline='') as csvfile:
@@ -167,13 +195,13 @@ else:
         writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
         # Write data
         writer.writerows(csvdata)
+
 # Finish timing of execution and add it to the log
 endTime = time.time()
 duration = endTime - startTime
 print(duration)
 f.write(str(duration) + '\n')
 f.close()
-
 
 # Financials as reported
 #print(finnhub_client.financials_reported(symbol='AAPL', freq='annual'))
