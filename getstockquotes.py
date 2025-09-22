@@ -48,12 +48,13 @@ import csv
 import time
 import os
 import requests
-import time 
+
+APIKEY = "csk431pr01qvrnd772b0csk431pr01qvrnd772bg"
 
 # Time execution
 startTime = time.time()
 # Setup client and connect to finnhub
-finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
+finnhub_client = finnhub.Client(api_key=APIKEY)
 
 # Get a list of stocks
 for i in range(100):
@@ -67,7 +68,7 @@ for i in range(100):
             time.sleep(10)
         else:
             # Reestablish client
-            finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
+            finnhub_client = finnhub.Client(api_key=APIKEY)
     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
         print(e)
         # Wait and then try again
@@ -101,7 +102,7 @@ for stock in stocks:
                 time.sleep(10)
             else:
                 # Reestablish client connection
-                finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
+                finnhub_client = finnhub.Client(api_key=APIKEY)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
             print(e)
             # Wait and then try again
@@ -131,7 +132,7 @@ for stock in stocks:
                         time.sleep(10)
                     else:
                         # Reestablish client connection
-                        finnhub_client = finnhub.Client(api_key="csk431pr01qvrnd772b0csk431pr01qvrnd772bg")
+                        finnhub_client = finnhub.Client(api_key=APIKEY)
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
                     print(e)
                     # Wait and then try again
