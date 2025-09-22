@@ -49,7 +49,7 @@ import time
 import os
 import requests
 
-APIKEY = "csk431pr01qvrnd772b0csk431pr01qvrnd772bg"
+APIKEY = "FINNHUBAPIKEY"
 
 # Time execution
 startTime = time.time()
