@@ -27,14 +27,16 @@ if os.path.exists(filepath):
 unique_stocks_dict = OrderedDict((row[2], None) for row in queryRows)
 unique_stocks = list(unique_stocks_dict.keys())
 
+stockSummary = [];
 for stock in unique_stocks:
     stockDate = [];
     stockPrice = [];
+    confidence = 0
     for row in queryRows:
         if row[2] == stock:
             stockDate.append(float(row[0])/60/60/24)
             stockPrice.append(float(row[5]))
-    
+            confidence = float(row[8])*2 + float(row[9]) - float(row[11]) - float(row[12])*2
     try:
         slope, intercept, r_value, p_value, std_err = linregress(stockDate, stockPrice)
     except ValueError:
@@ -46,12 +48,21 @@ for stock in unique_stocks:
     max_value = max(stockPrice)
     avg_value = sum(stockPrice) / len(stockPrice)
     
-    print(stock)
-    print(slope)
-    print(r_value)
-    print(min_time)
-    print(max_time)
-    print(min_value)
-    print(max_value)
-    print(avg_value)
+    stockSummary.append([stock, slope*(max_time - min_time)/avg_value, min_value, max_value, avg_value, r_value, min_time, max_time, confidence])
+
+sortedStockSummary = sorted(stockSummary, key=lambda x: x[1], reverse=True)
+
+with open("stocks.html", "w") as f:
+    # Print some text to the file
+    f.write("<html><body><table>\n")
+    for stock in sortedStockSummary:
+        f.write("<tr><td>")
+        for i in range(8):
+            f.write(str(stock[i]))
+            f.write("</td><td>")
+        f.write(str(stock[8]))
+        f.write("</td><tr>")
+    f.write("</table></body></html>")
+        
+
 
