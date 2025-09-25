@@ -151,9 +151,10 @@ with open(htmlpath, "w") as f:
     f.write("<meta name=\"description\" content=\"A daily listing of stocks sorted by the growth rate and linearity of growth over the past 30 days.\">\n")
     f.write("<meta name=\"keywords\" content=\"finnhub stock robinhood\">\n")
     f.write("<style>\n")
-    f.write("   html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n")
-    f.write("   body { background-color: #fff; color: #333;}\n")
-    f.write("   @media (prefers-color-scheme: dark) { body { background-color: #333; color: #fff; } }\n")
+    f.write("   html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: left; line-height: 1.4 }\n")
+    f.write("   body { background-color: #fff; color: #333; }\n")
+    f.write("   @media (prefers-color-scheme: dark) { body { background-color: #333; color: #fff; a { color: #7af; font-weight: bold; } } }\n")
+    f.write("   a { font-weight: bold; } \n")
     f.write("   tr:nth-child(odd) { background-color: #f2f2f2; color: #333}\n")
     f.write("   tr:nth-child(even) { background-color: #ffffff; color: #333}\n")
     f.write("   th { background-color: #375a7f; color: white; position: sticky; top: 0; z-index: 1; }\n")
@@ -171,11 +172,11 @@ with open(htmlpath, "w") as f:
     f.write("<p align=\"left\">Get instant access to my curated list of top-performing stocks from the past month, sorted by their impressive growth rates. My unique ranking system highlights the companies that have shown the most significant and consistent increases in value.</p>\n")
     f.write("<p align=\"left\">Each stock on the list is accompanied by relevant statistical insights, including key metrics and explanations of how I calculate them. Whether you're a seasoned investor or just starting out, my Bandwagon Stock List provides valuable information to help you make informed decisions about your portfolio.</p>\n")
     f.write("<h2 align=\"left\">Designed for Robinhood Users</h2>\n")
-    f.write("<p align=\"left\">Bandwagon Stock List is specifically designed to be used in conjunction with Robinhood, a popular online brokerage platform that offers commission-free trading. With this tool, you can easily find and research top-performing stocks on the list, then quickly place trades through your Robinhood account.</p>\n")
+    f.write("<p align=\"left\">Bandwagon Stock List is specifically designed to be used in conjunction with <a href=\"https://robinhood.com\">Robinhood</a>, a popular online brokerage platform that offers commission-free trading. With this tool, you can easily find and research top-performing stocks on the list, then quickly place trades through your Robinhood account.</p>\n")
     f.write("<h2 align=\"left\">Important Disclaimer</h2>\n")
     f.write("<p align=\"left\">The information presented on this list is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. There are risks involved with investing in the stock market, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.</p>\n")
     f.write("<h2 align=\"left\">Learn More</h2>\n")
-    f.write("<p align=\"left\">For more details about this project and how it works, visit my GitHub page at <a href=\"https://github.com/jonw0224/Bandwagon\">https://github.com/jonw0224/Bandwagon\"</a></p>.")
+    f.write("<p align=\"left\">For more details about this project and how it works, visit the project GitHub page at <a href=\"https://github.com/jonw0224/Bandwagon\">https://github.com/jonw0224/Bandwagon</a></p>.")
     # Write the stock table
     f.write("<table>\n")
     # Write the table headerhttps://github.com/jonw0224/Bandwagon\
@@ -186,7 +187,7 @@ with open(htmlpath, "w") as f:
     for stock in sortedStockSummary:
         print(stock[11])
         f.write("<tr><td>")
-        f.write("<a href=\"https://robinhood.com/stocks/" + stock[0] + "?source=search\">" + stock[0] + "</a>")
+        f.write("<a style=\"color: #375a7f\" href=\"https://robinhood.com/stocks/" + stock[0] + "?source=search\">" + stock[0] + "</a>")
         f.write("</td><td style=\"text-align: right;\">")
         for i in range(1,12):
             f.write(f"{stock[i]:.3f}")
