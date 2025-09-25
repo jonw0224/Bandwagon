@@ -6,6 +6,7 @@ import os
 from collections import OrderedDict
 import numpy as np
 from scipy.stats import linregress
+from operator import itemgetter, attrgetter
 
 ########################################################################################################################
 # Global variables
@@ -46,6 +47,7 @@ unique_stocks = list(unique_stocks_dict.keys())
 
 # Create a list to store stock summary information and staticial analysis results
 stockSummary = [];
+sortedStockSummary = [];
 
 # Analyze each stock and store the results
 for stock in unique_stocks:
@@ -84,38 +86,71 @@ for stock in unique_stocks:
     # Stock price minimum, maximum, average, price at beginning and end of period analyzed
     min_value = min(stockPrice)
     max_value = max(stockPrice)
-    avg_value = sum(stockPrice) / len(stockPrice)
+    if len(stockPrice) == 0:
+        avg_value = 0.0
+    else:
+        avg_value = sum(stockPrice) / len(stockPrice)
+    
     first_value = stockPrice[0]
-    last_value = stockPrice[len(stockPrice)-1]
+    
+    if len(stockPrice) < 1:
+        last_value = first_value
+    else:
+        last_value = stockPrice[len(stockPrice)-1]
 
     # Calculate the percent growth
-    growth = (last_value - first_value) / first_value
+    if first_value == 0:
+        growth = 0.0
+    else:
+        growth = (last_value - first_value) / first_value
+    
     # Calculate the "range" as a ratio of differnce of the maximum value and the minimum value normalized by the average value
-    rng = (max_value - min_value) / avg_value
+    if avg_value ==0:
+        rng = 0.0
+    else:
+        rng = (max_value - min_value) / avg_value
+    
     # Calculate a "risk" as the ratio of the percent growth to the normalized range. 
     # This gives an idea of how the growth compares to the range or how volatile the stock was over the period compared to the growth.
-    risk = growth / rng
+    if rng == 0:
+        risk = 0.0
+    else:
+        risk = growth / rng
+    
     # This is the slope of the linear regression scaled so that it is normalized by the average stock value over the period. 
     # You can think of this statistic as a percent slope in the period. For example a value of 0.5 means the stock price increased by 
     # 50% over the period, so this statistic is similar to the percent growth, except it is the percent growth of the linear 
     # regression trendline.
-    slp = slope*(max_time - min_time)/avg_value
+    if avg_value == 0:
+        slp = 0.0
+    else:
+        slp = slope*(max_time - min_time)/avg_value
     
     # Save the statistical analysis data. Also, saving the r^2 value for the linear regression and a "Confident Normalized Slope"
     # statistic, which is the linear regression trendline slope multiplied by the r^2 value. This statistic is the one used to sort
     # the stock list. The idea is that the r^2 value multiplied by the trendline slope gives a worst case approximation of the growth
     # or the growth that you could expect with the volatility removed from the data. It essentially measures "predictable growth"
     # of the stock or "consistent linear growth" of the stock over the period analyzed.
-    stockSummary.append([stock, first_value, last_value, min_value, avg_value, max_value, 
-        growth, rng, risk, slp, r_value*r_value, slp*r_value*r_value, min_time_str, max_time_str, confidence])
+    if not(np.isnan(slp)) and not(np.isnan(r_value)):
+        if slp > 0 and growth > 0:
+            stockSummary.append([stock, first_value, last_value, min_value, avg_value, max_value, 
+                growth, rng, risk, slp, r_value*r_value, slp*r_value*r_value, min_time_str, max_time_str, confidence])
 
 # Sort the stock summary data by the "Confident Normalized Slope", which is the 11th column in the data
-sortedStockSummary = sorted(stockSummary, key=lambda x: x[11], reverse=True)
+#sortedStockSummary = sorted(stockSummary, key=lambda x: x[11], reverse=True)
+sortedStockSummary = sorted(stockSummary, key=itemgetter(11), reverse=True)
 
 # Write the HTML file
 with open(htmlpath, "w") as f:
     # Write the HTML head and stylesheet
-    f.write("<html><head><style>\n")
+    f.write("<html><head>\n")
+    f.write("<title>Bandwagon Stock List</title>\n")
+    f.write("<meta charset=\"UTF-8\">\n")
+    f.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+    f.write("<meta name=\"author\" content=\"Jonathan Weaver\">\n")
+    f.write("<meta name=\"description\" content=\"A daily listing of stocks sorted by the growth rate and linearity of growth over the past 30 days.\">\n")
+    f.write("<meta name=\"keywords\" content=\"finnhub stock robinhood\">\n")
+    f.write("<style>\n")
     f.write("   html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n")
     f.write("   body { background-color: #fff; color: #333;}\n")
     f.write("   @media (prefers-color-scheme: dark) { body { background-color: #333; color: #fff; } }\n")
@@ -131,14 +166,25 @@ with open(htmlpath, "w") as f:
     f.write("</style></head>\n")
     # Write the HTML body
     f.write("<body>\n")
+    f.write("<h1 align=\"left\">Bandwagon Stock List</h1>\n")
+    f.write("<h2 align=\"left\">Stay Ahead of the Curve</h2>\n")
+    f.write("<p align=\"left\">Get instant access to my curated list of top-performing stocks from the past month, sorted by their impressive growth rates. My unique ranking system highlights the companies that have shown the most significant and consistent increases in value.</p>\n")
+    f.write("<p align=\"left\">Each stock on the list is accompanied by relevant statistical insights, including key metrics and explanations of how I calculate them. Whether you're a seasoned investor or just starting out, my Bandwagon Stock List provides valuable information to help you make informed decisions about your portfolio.</p>\n")
+    f.write("<h2 align=\"left\">Designed for Robinhood Users</h2>\n")
+    f.write("<p align=\"left\">Bandwagon Stock List is specifically designed to be used in conjunction with Robinhood, a popular online brokerage platform that offers commission-free trading. With this tool, you can easily find and research top-performing stocks on the list, then quickly place trades through your Robinhood account.</p>\n")
+    f.write("<h2 align=\"left\">Important Disclaimer</h2>\n")
+    f.write("<p align=\"left\">The information presented on this list is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. There are risks involved with investing in the stock market, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.</p>\n")
+    f.write("<h2 align=\"left\">Learn More</h2>\n")
+    f.write("<p align=\"left\">For more details about this project and how it works, visit my GitHub page at <a href=\"https://github.com/jonw0224/Bandwagon\">https://github.com/jonw0224/Bandwagon\"</a></p>.")
     # Write the stock table
     f.write("<table>\n")
-    # Write the table header
+    # Write the table headerhttps://github.com/jonw0224/Bandwagon\
     f.write("<thead><tr><th>Symbol</th><th>First</th><th>Last</th><th>Min</th><th>Avg</th><th>Max</th><th>Growth</th>")
     f.write("<th>Range</th><th>Stability</th><th>Normalized<br>Slope</th><th>Linearity</th><th>Confident<br>Normalized<br>Slope</th>")
     f.write("<th>Period Start</th><th>Period Stop</th><th>Confidence</th></tr></thead>")
     # Write the table values
     for stock in sortedStockSummary:
+        print(stock[11])
         f.write("<tr><td>")
         f.write("<a href=\"https://robinhood.com/stocks/" + stock[0] + "?source=search\">" + stock[0] + "</a>")
         f.write("</td><td style=\"text-align: right;\">")
