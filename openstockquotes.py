@@ -81,7 +81,7 @@ for stock in unique_stocks:
     max_time = max(stockDate)
     # End of period analyzed as a readable string
     local_struct_max_time = time.localtime(max_time*60*60*24)
-    max_time_str = time.strftime("%Y-%m-%d", local_struct_max_time)
+    max_time_str = time.strftime("%Y-628bd1%m-%d", local_struct_max_time)
 
     # Stock price minimum, maximum, average, price at beginning and end of period analyzed
     min_value = min(stockPrice)
@@ -153,7 +153,7 @@ with open(htmlpath, "w") as f:
     f.write("<style>\n")
     f.write("   html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: left; line-height: 1.4 }\n")
     f.write("   body { background-color: #fff; color: #333; }\n")
-    f.write("   @media (prefers-color-scheme: dark) { body { background-color: #333; color: #fff; a { color: #7af; font-weight: bold; } } }\n")
+    f.write("   @media (prefers-color-scheme: dark) { body { background-color: #333; color: #fff; } a { color: #628bd1; font-weight: bold; } }\n")
     f.write("   a { font-weight: bold; } \n")
     f.write("   tr:nth-child(odd) { background-color: #f2f2f2; color: #333}\n")
     f.write("   tr:nth-child(even) { background-color: #ffffff; color: #333}\n")
@@ -169,14 +169,14 @@ with open(htmlpath, "w") as f:
     f.write("<body>\n")
     f.write("<h1 align=\"left\">Bandwagon Stock List</h1>\n")
     f.write("<h2 align=\"left\">Stay Ahead of the Curve</h2>\n")
-    f.write("<p align=\"left\">Get instant access to my curated list of top-performing stocks from the past month, sorted by their impressive growth rates. My unique ranking system highlights the companies that have shown the most significant and consistent increases in value.</p>\n")
-    f.write("<p align=\"left\">Each stock on the list is accompanied by relevant statistical insights, including key metrics and explanations of how I calculate them. Whether you're a seasoned investor or just starting out, my Bandwagon Stock List provides valuable information to help you make informed decisions about your portfolio.</p>\n")
+    f.write("<p align=\"left\">Get instant access to my list of top-performing stocks from the past month, sorted by their growth rates. This list is designed to help you quickly identify stocks with the strongest investor support, spotlighting companies that have delivered the most reliable and substantial growth. Use the list to spot emerging opportunities and strengthen your investment strategy.</p>\n")
+    f.write("<p align=\"left\">Each stock on the list is accompanied by statistical insights, including key metrics and explanations of how I calculate them. Using these details, you can easily compare options and understand what sets each top performer apart, making it easier to choose stocks that align with your investing goals.</p>\n")
     f.write("<h2 align=\"left\">Designed for Robinhood Users</h2>\n")
-    f.write("<p align=\"left\">Bandwagon Stock List is specifically designed to be used in conjunction with <a href=\"https://robinhood.com\">Robinhood</a>, a popular online brokerage platform that offers commission-free trading. With this tool, you can easily find and research top-performing stocks on the list, then quickly place trades through your Robinhood account.</p>\n")
+    f.write("<p align=\"left\">The Bandwagon Stock List is specifically designed to be used in conjunction with <a href=\"https://robinhood.com\">Robinhood</a>, a popular online brokerage platform that offers commission-free trading. With this tool, you can easily find and research top-performing stocks on the list, then quickly place trades through your Robinhood account.\n")
     f.write("<h2 align=\"left\">Important Disclaimer</h2>\n")
-    f.write("<p align=\"left\">The information presented on this list is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. There are risks involved with investing in the stock market, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.</p>\n")
+    f.write("<p align=\"left\">The information presented on this list is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. Investing in the stock market carries risks, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.</p>\n")
     f.write("<h2 align=\"left\">Learn More</h2>\n")
-    f.write("<p align=\"left\">For more details about this project and how it works, visit the project GitHub page at <a href=\"https://github.com/jonw0224/Bandwagon\">https://github.com/jonw0224/Bandwagon</a></p>.")
+    f.write("<p align=\"left\">Learn more at https://github.com/jonw0224/BandwagonFor more details about this project and how it works, visit the project GitHub page at <a href=\"https://github.com/jonw0224/Bandwagon\">https://github.com/jonw0224/Bandwagon</a></p>.")
     # Write the stock table
     f.write("<table>\n")
     # Write the table headerhttps://github.com/jonw0224/Bandwagon\
