@@ -201,7 +201,7 @@ with open(htmlpath, "w") as f:
         for i in range(7,9):
             f.write(f"{stock[i]:.3f}")
             f.write("</td><td style=\"text-align: right;\">")
-        f.write(f"<b>{stock[i]:.3f}</b>")
+        f.write(f"<b>{stock[9]:.3f}</b>")
         f.write("</td><td style=\"text-align: right;\">")
         f.write(stock[10])
         f.write("</td><td style=\"text-align: right;\">")
@@ -211,13 +211,14 @@ with open(htmlpath, "w") as f:
         f.write("</td></tr>\n")
     # Finish the table
     f.write("</table>\n")
+    # Footer
+    f.write("<p align=\"left\" style=\"font-size: small\">Table generated on " + time.strftime("%Y-%m-%d", time.localtime()) + "</p>")
+    f.write("<p align=\"left\" style=\"font-size: small\">Copyright (C) 2025 Jonathan Weaver</p>")
+    f.write("<p align=\"left\" style=\"font-size: small\">Bandwagon is free software licensed under GPL v3.0</p>")
     f.write("</table></center>\n")
     # Finish the HTML body
     f.write("</body></html>")
 
-    f.write("<p align=\"left\" style=\"font-size: small\">Table generated on " + time.strftime("%Y-%m-%d", time.localtime()) + "</p>")
-    f.write("<p align=\"left\" style=\"font-size: small\">Copyright (C) 2025 Jonathan Weaver</p>")
-    f.write("<p align=\"left\" style=\"font-size: small\">Bandwagon is free software licensed under GPL v3.0</p>")
 
 #
         
