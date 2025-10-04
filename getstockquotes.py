@@ -28,6 +28,8 @@
 #                     connection and finnhub API timeouts. 
 # 1.02 - 2025-09-24 - Added stock analysis and generation of a static HTML
 #                     page that list stocks in order of preference.
+# 1.03 - 2025-10-04 - Enhanced the stock analysis and added analysis image
+#                     generation
 #
 # Copyright (C) 2025 Jonathan Weaver
 #
@@ -63,7 +65,7 @@ import seaborn as sns
 
 # Global variables
 
-APIKEY = "FINNHUBAPIKEY"
+APIKEY = "FINNHUBAPI"
 
 # File paths
 filepath = "stockQuotes.csv"
