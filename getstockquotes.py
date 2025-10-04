@@ -50,16 +50,28 @@
 # Import library and interface files
 from collections import OrderedDict
 import numpy as np
-from scipy.stats import linregress
-from operator import itemgetter, attrgetter
 import finnhub
 import csv
 import time
 import os
 import requests
+from scipy.stats import linregress, t
+from operator import itemgetter, attrgetter
+import matplotlib.pyplot as plt
+import seaborn as sns
 ########################################################################################################################
 
+# Global variables
+
 APIKEY = "FINNHUBAPIKEY"
+
+# File paths
+filepath = "stockQuotes.csv"
+htmlpath = "stocks.html"
+
+########################################################################################################################
+# Get the Stock Prices
+########################################################################################################################
 
 # Time execution
 startTime = time.time()
@@ -218,14 +230,14 @@ f.close()
 #print(finnhub_client.financials_reported(symbol='AAPL', freq='annual'))
 
 ########################################################################################################################
-# Global variables
-# File paths
-filepath = "stockQuotes.csv"
-htmlpath = "stocks.html"
+# Create the report
+########################################################################################################################
+
 
 # Thirty two days into the past
 now = time.time()
-querytime = now - 24*60*60*32
+lookback_days = 32
+querytime = now - 24*60*60*lookback_days
 queryRows = [];
 
 # Perform some analysis of historical data
@@ -264,7 +276,10 @@ for stock in unique_stocks:
     stockDate = [];
     stockPrice = [];
     # Recalculate the confidence. It wasn't saved in the data before when used to select data, but we want to put it in the analysis results
+    #slope = 0
     confidence = 0
+    #lower_bound_slope = 0
+    #r_value = 0
     # Save the data stock dates and stock price for the linear analysis
     for row in queryRows:
         if row[2] == stock:
@@ -276,7 +291,23 @@ for stock in unique_stocks:
             confidence = float(row[8])*2 + float(row[9]) - float(row[11]) - float(row[12])*2
     # Perform the linear regression, print error message in the event of an error
     try:
-        slope, intercept, r_value, p_value, std_err = linregress(stockDate, stockPrice)
+        # Calculate the linear regression and parameters
+        result = linregress(stockDate, stockPrice)
+        slope = result.slope
+        intercept = result.intercept
+        r_value = result.rvalue
+        p_value = result.pvalue
+        std_err_slope = result.stderr
+        std_err_intercept = result.intercept_stderr
+        # Calculate the critical value for a two-tailed test at 95% confidence level
+        critical_value = t.ppf(1-0.05/2, len(stockPrice) - 2)
+        # Calculate the lower bound slope
+        upper_bound_slope = slope + (std_err_slope * critical_value)
+        lower_bound_slope = slope - (std_err_slope * critical_value)
+        # Calculate the lower bound intercept
+        upper_bound_intercept = intercept + (std_err_intercept * critical_value)
+        lower_bound_intercept = intercept - (std_err_intercept * critical_value)
+
     except ValueError:
         print("Cannot calculate linear regression for " + stock)
 
@@ -313,51 +344,96 @@ for stock in unique_stocks:
     else:
         growth = (last_value - first_value) / first_value
     
-    # Calculate the "range" as a ratio of differnce of the maximum value and the minimum value normalized by the average value
-    if avg_value ==0:
-        rng = 0.0
-    else:
-        rng = (max_value - min_value) / avg_value
-    
-    # Calculate a "risk" as the ratio of the percent growth to the normalized range. 
-    # This gives an idea of how the growth compares to the range or how volatile the stock was over the period compared to the growth.
-    if rng == 0:
-        risk = 0.0
-    else:
-        risk = growth / rng
-    
     # This is the slope of the linear regression scaled so that it is normalized by the average stock value over the period. 
     # You can think of this statistic as a percent slope in the period. For example a value of 0.5 means the stock price increased by 
     # 50% over the period, so this statistic is similar to the percent growth, except it is the percent growth of the linear 
-    # regression trendline.
+    # regression trendline. Also calculate for the lower_bound_slope. The ranking criteria is the lower_bound_slope as a normalized value.
     if avg_value == 0:
         slp = 0.0
     else:
-        slp = slope*(max_time - min_time)/avg_value
+        slp = slope * (max_time - min_time) / avg_value
+        lower_bound_slp = lower_bound_slope * (max_time - min_time) / avg_value 
     
     # Save the statistical analysis data. Also, saving the r^2 value for the linear regression and a "Confident Normalized Slope"
     # statistic, which is the linear regression trendline slope multiplied by the r^2 value. This statistic is the one used to sort
     # the stock list. The idea is that the r^2 value multiplied by the trendline slope gives a worst case approximation of the growth
     # or the growth that you could expect with the volatility removed from the data. It essentially measures "predictable growth"
     # of the stock or "consistent linear growth" of the stock over the period analyzed.
-    if not(np.isnan(slp)) and not(np.isnan(r_value)):
-        if slp > 0 and growth > 0:
+    if not(np.isnan(lower_bound_slp)) and not(np.isnan(r_value)):
+        if (lower_bound_slp > 0) and (growth > 0) and (len(stockDate) > (0.5 * 32)):
             stockSummary.append([stock, first_value, last_value, min_value, avg_value, max_value, 
-                growth, rng, risk, slp, r_value*r_value, slp*r_value*r_value, min_time_str, max_time_str, confidence])
+                growth*100, slp, r_value*r_value, lower_bound_slp, min_time_str, max_time_str, confidence])
 
-# Sort the stock summary data by the "Confident Normalized Slope", which is the 11th column in the data
+            # 2. Create the regression plot with a 95% confidence interval
+            x = [(i - min_time) / (max_time - min_time) for i in stockDate]
+            y = [ i / avg_value for i in stockPrice]
+            result = linregress(x, y)
+            slope = result.slope
+            intercept = result.intercept
+            r_value = result.rvalue
+            p_value = result.pvalue
+            std_err_slope = result.stderr
+            std_err_intercept = result.intercept_stderr
+            # Calculate the critical value for a two-tailed test at 95% confidence level
+            critical_value = t.ppf(1-0.05/2, len(stockPrice) - 2)
+            # Calculate the lower bound slope
+            upper_bound_slope = slope + (std_err_slope * critical_value)
+            lower_bound_slope = slope - (std_err_slope * critical_value)
+            # Calculate the lower bound intercept
+            upper_bound_intercept = intercept + (std_err_intercept * critical_value)
+            lower_bound_intercept = intercept - (std_err_intercept * critical_value)
+            plt.figure(figsize=(8, 6))
+            plt.xlim(0, 1) 
+            plt.plot(x, y, label='Stock Price')  # Plot the original data points
+
+            # Calculate x values for the trend line
+            x_trend = np.array([0,1])
+
+            # Create the trend line
+            y_trend = slope * x_trend + intercept
+            lower_y_trend = lower_bound_slope * (x_trend) + upper_bound_intercept
+            upper_y_trend = upper_bound_slope * (x_trend) + lower_bound_intercept
+
+            plt.plot(x_trend, y_trend, 'r-', label=f'Trend Line Slope ({slope:.2f})')
+
+            # Plot the 95% confidence interval bounds for slope and intercept
+            plt.plot(x_trend, lower_y_trend, 'b--', label=f'Lower-Bound Slope ({lower_bound_slope:.2f})')
+            plt.plot(x_trend, upper_y_trend, 'g--', label=f'Upper-Bound Slope ({upper_bound_slope:.2f})')
+
+            sns.regplot(x=x, y=y, ci=95,  truncate=False, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
+
+            # 3. Customize the plot (optional)
+            plt.title(stock + "\n Linear Regression and 95% Confidence Interval")
+            plt.xlabel("Normalized Period")
+            plt.ylabel("Normalized Stock Price (Stock Price / Average Stock Price)")
+            plt.grid(True, linestyle='--', alpha=0.7)
+            plt.legend()
+            # Save the plot as an image instead of displaying it on the screen
+            plt.savefig(stock + '.png', dpi=100)  # Adjust 'linear_regression_plot' to your desired filename and 'dpi=300' for resolution
+            plt.close()
+
+
+# Sort the stock summary data by the "Confident Normalized Slope", which is the 10th column in the data
 #sortedStockSummary = sorted(stockSummary, key=lambda x: x[11], reverse=True)
-sortedStockSummary = sorted(stockSummary, key=itemgetter(11), reverse=True)
+sortedStockSummary = sorted(stockSummary, key=itemgetter(9), reverse=True)
 
 # Write the HTML file
 with open(htmlpath, "w") as f:
     # Write the HTML head and stylesheet
-    f.write("<html><head><style>\n")
-    f.write("   html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n")
-    f.write("   body { background-color: #fff; color: #333;}\n")
-    f.write("   @media (prefers-color-scheme: dark) { body { background-color: #333; color: #fff; } }\n")
-    f.write("   tr:nth-child(odd) { background-color: #f2f2f2; color: #333}\n")
-    f.write("   tr:nth-child(even) { background-color: #ffffff; color: #333}\n")
+    f.write("<!DOCTYPE html>\n\n")
+    f.write("<html><head>\n")
+    f.write("<title>Bandwagon Stock List</title>\n")
+    f.write("<meta charset=\"UTF-8\">\n")
+    f.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
+    f.write("<meta name=\"author\" content=\"Jonathan Weaver\">\n")
+    f.write("<meta name=\"description\" content=\"A daily listing of stocks sorted by the growth rate and linearity of growth over the past 30 days.\">\n")
+    f.write("<meta name=\"keywords\" content=\"finnhub stock robinhood\">\n")
+    f.write("<style>\n")
+    f.write("   html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: left; line-height: 1.4 }\n")
+    f.write("   body { background-color: #fff; color: #333; }\n")
+    f.write("   a { font-weight: bold; } \n")
+    f.write("   tr:nth-child(odd) { background-color: #f2f2f2; color: #333;}\n")
+    f.write("   tr:nth-child(even) { background-color: #ffffff; color: #333;}\n")
     f.write("   th { background-color: #375a7f; color: white; position: sticky; top: 0; z-index: 1; }\n")
     f.write("   th, td {\n")
     f.write("       padding-top: 5px;\n")
@@ -365,32 +441,63 @@ with open(htmlpath, "w") as f:
     f.write("       padding-bottom: 5px;\n")
     f.write("       padding-left: 15px;\n")
     f.write("   }\n")
+    f.write("   @media (prefers-color-scheme: dark) {\n") 
+    f.write("       body { background-color: #333; color: #fff; }\n")
+    f.write("       a:link { color: #628bd1; font-weight: bold; }\n")
+    f.write("       a:visited { color: #8027d1; font-weight: bold; }\n")
+    f.write("       tr:nth-child(odd) { background-color: #222; color: #fff;}\n")
+    f.write("       tr:nth-child(even) { background-color: #333; color: #fff;}\n")
+    f.write("   }\n")
     f.write("</style></head>\n")
     # Write the HTML body
     f.write("<body>\n")
+    f.write("<center><table width=1500>\n")
+    f.write("<tr><td>\n")
+    f.write("<h1 align=\"left\">Bandwagon Stock List</h1>\n")
+    f.write("<h2 align=\"left\">Join the Bandwagon</h2>\n")
+    f.write("<p align=\"left\">When deciding which stocks to buy on <a href=\"https://robinhood.com\">Robinhood</a>, I utilized an API to retrieve current prices, logged historical data, applied statistics to identify top-performing stocks from the past month, and automated the process with a script. Isn’t that what you’d do? If not, here’s the resulting list of top-performing stocks from the past month, sorted by growth. You can use this list to quickly identify stocks with strong investor support and enhance your investment strategy.</p>\n")
+    f.write("<p align=\"left\">Stocks were filtered to have a high investor grade, analyzed using linear regression, and sorted by the lower-bound trendline slope. The lower-bound trendline slope has been normalized by the average stock price and calculated using a 95% confidence interval. This statistic provides a conservative estimate of stock price percentage growth, taking into account both the trends and volatility of the stock price over the past month. With these details, you can easily compare stocks by their historical performance.</p>\n")
+    f.write("<h2 align=\"left\">Designed for Robinhood Users</h2>\n")
+    f.write("<p align=\"left\">The Bandwagon Stock List is designed for use with <a href=\"https://robinhood.com\">Robinhood</a>, a popular online brokerage platform offering commission-free trading. With this tool, you can easily find and research top-performing stocks on the list, then quickly place trades through your Robinhood account.</p>\n")
+    f.write("<h2 align=\"left\">Important Disclaimer</h2>\n")
+    f.write("<p align=\"left\">The information presented on this list is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. Investing in the stock market carries risks, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.</p>\n")
+    f.write("<h2 align=\"left\">Learn More</h2>\n")
+    f.write("<p align=\"left\">Learn more at <a href=\"https://github.com/jonw0224/Bandwagon\">https://github.com/jonw0224/Bandwagon</a>.</p>\n")
     # Write the stock table
-    f.write("<table>\n")
+    f.write("<table width=100%>\n")
     # Write the table header
-    f.write("<thead><tr><th>Symbol</th><th>First</th><th>Last</th><th>Min</th><th>Avg</th><th>Max</th><th>Growth</th>")
-    f.write("<th>Range</th><th>Stability</th><th>Normalized<br>Slope</th><th>Linearity</th><th>Confident<br>Normalized<br>Slope</th>")
-    f.write("<th>Period Start</th><th>Period Stop</th><th>Confidence</th></tr></thead>")
+    f.write("<thead><tr><th>Symbol</th><th>First</th><th>Last</th><th>Min</th><th>Avg</th><th>Max</th><th>Percent<br>Growth</th>")
+    f.write("<th>Normalized<br>Slope</th><th>R<sup>2</sup> Value</th><th>Lower-bound<br>Normalized<br>Slope<br>(95% Confidence)</th>")
+    f.write("<th>Period Start</th><th>Period Stop</th><th>Investor Grade</th></tr></thead>")
     # Write the table values
     for stock in sortedStockSummary:
-        print(stock[11])
+        print(stock[9])
         f.write("<tr><td>")
-        f.write("<a href=\"https://robinhood.com/stocks/" + stock[0] + "?source=search\">" + stock[0] + "</a>")
+        f.write("<a href=\"https://robinhood.com/stocks/" + stock[0] + "?source=search\" target=\"_blank\">" + stock[0] + "</a>")
         f.write("</td><td style=\"text-align: right;\">")
-        for i in range(1,12):
-            f.write(f"{stock[i]:.3f}")
+        for i in range(1,6):
+            f.write(f"{stock[i]:.2f}")
             f.write("</td><td style=\"text-align: right;\">")
-        f.write(stock[12])
+        f.write(f"{stock[6]:.1f}")
         f.write("</td><td style=\"text-align: right;\">")
-        f.write(stock[13])
+        for i in range(7,9):
+            f.write(f"{stock[i]:.2f}")
+            f.write("</td><td style=\"text-align: right;\">")
+        f.write("<b><a href=\"" + stock[0] + f".png\" target=\"_blank\">{stock[9]:.2f}</a></b>")
         f.write("</td><td style=\"text-align: right;\">")
-        f.write(f"{stock[14]:.0f}")
+        f.write(stock[10])
+        f.write("</td><td style=\"text-align: right;\">")
+        f.write(stock[11])
+        f.write("</td><td style=\"text-align: right;\">")
+        f.write(f"{stock[12]:.0f}")
         f.write("</td></tr>\n")
     # Finish the table
     f.write("</table>\n")
+    # Footer
+    f.write("<p align=\"left\" style=\"font-size: small\">Table generated on " + time.strftime("%Y-%m-%d", time.localtime()) + "</p>")
+    f.write("<p align=\"left\" style=\"font-size: small\">Copyright (C) 2025 Jonathan Weaver</p>")
+    f.write("<p align=\"left\" style=\"font-size: small\">Bandwagon is free software licensed under GPL v3.0</p>")
+    f.write("</table></center>\n")
     # Finish the HTML body
     f.write("</body></html>")
 
