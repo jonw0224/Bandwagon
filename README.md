@@ -1,1 +1,2 @@
-![bandwagon](https://github.com/user-attachments/assets/2349e1f7-1019-4ab1-8e06-947dfbe9982e)
+
+<img width="512" height="512" alt="bandwagon" src="https://github.com/user-attachments/assets/aab3fb46-612a-43f8-90d9-436f79fa0ffe" />
