@@ -71,6 +71,10 @@ APIKEY = "FINNHUBAPI"
 filepath = "stockQuotes.csv"
 htmlpath = "stocks.html"
 
+# Set to True to get the stock prices from finnhub. Set to False to only generate the report. False used for testing.
+# Should be set to True while in production
+getPrices = True
+
 ########################################################################################################################
 # Get the Stock Prices
 ########################################################################################################################
@@ -80,44 +84,12 @@ startTime = time.time()
 # Setup client and connect to finnhub
 finnhub_client = finnhub.Client(api_key=APIKEY)
 
-# Get a list of stocks
-for i in range(100):
-    try:
-        stocks = finnhub_client.stock_symbols('US')
-        break
-    except finnhub.exceptions.FinnhubAPIException as e:
-        print(e)
-        if (e.status_code == 429):
-            # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
-            time.sleep(10)
-        else:
-            # Reestablish client
-            finnhub_client = finnhub.Client(api_key=APIKEY)
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
-        print(e)
-        # Wait and then try again
-        time.sleep(1)
-    else:
-        print(e)
-        # Wait and then try again
-        time.sleep(1)
+if(getPrices == True):
 
-# Record the price for each stock in a seperate CSV file
-f = open("log.txt", "w")
-f.write("Number of stocks: " + str(len(stocks)) + '\n')
-print(len(stocks))
-csvdata = None
-# This line is commented out while debugging
-for stock in stocks:
-# The next two lines are uncommented for debugging
-# #for i in range(20):
-#    stock = stocks[i]
-
-    # Get the stock price quote
-    quote = None
+    # Get a list of stocks
     for i in range(100):
         try:
-            quote = finnhub_client.quote(stock['symbol'])
+            stocks = finnhub_client.stock_symbols('US')
             break
         except finnhub.exceptions.FinnhubAPIException as e:
             print(e)
@@ -125,7 +97,7 @@ for stock in stocks:
                 # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
                 time.sleep(10)
             else:
-                # Reestablish client connection
+                # Reestablish client
                 finnhub_client = finnhub.Client(api_key=APIKEY)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
             print(e)
@@ -136,97 +108,131 @@ for stock in stocks:
             # Wait and then try again
             time.sleep(1)
 
-    # Get the trading recommendation
-    if quote is not None: 
-        f.write(stock['symbol'] + '\n')
-        print(stock['symbol'])
-        print(quote)
-        if quote['d'] is not None:         
-            recommend = None
-            for i in range(100):
-                try:
-                    recommend = finnhub_client.recommendation_trends(stock['symbol'])[0]
-                    break
-                except IndexError:
-                    break
-                except finnhub.exceptions.FinnhubAPIException as e:
-                    print(e)
-                    if (e.status_code == 429):
-                        # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
-                        time.sleep(10)
-                    else:
-                        # Reestablish client connection
-                        finnhub_client = finnhub.Client(api_key=APIKEY)
-                except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
-                    print(e)
-                    # Wait and then try again
-                    time.sleep(1)
+    # Record the price for each stock in a seperate CSV file
+    f = open("log.txt", "w")
+    f.write("Number of stocks: " + str(len(stocks)) + '\n')
+    print(len(stocks))
+    csvdata = None
+    # This line is commented out while debugging
+    for stock in stocks:
+    # The next two lines are uncommented for debugging
+    # #for i in range(20):
+    #    stock = stocks[i]
+
+        # Get the stock price quote
+        quote = None
+        for i in range(100):
+            try:
+                quote = finnhub_client.quote(stock['symbol'])
+                break
+            except finnhub.exceptions.FinnhubAPIException as e:
+                print(e)
+                if (e.status_code == 429):
+                    # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
+                    time.sleep(10)
                 else:
-                    print(e)
-                    # Wait and then try again
-                    time.sleep(1)
-            if recommend is not None:
-                print(recommend)
-            # To give feedback
-            f.write(stock['symbol'] + ": " + str(quote['c']))
-            print(stock['symbol'] + ": " + str(quote['c']))
-            if recommend is None:
-                f.write("No Recommendation")
-                print("No Recommendation")
-                csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], "None", "0", "0", "0", "0", "0"]
+                    # Reestablish client connection
+                    finnhub_client = finnhub.Client(api_key=APIKEY)
+            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
+                print(e)
+                # Wait and then try again
+                time.sleep(1)
             else:
-                csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], recommend['period'], recommend['strongBuy'], recommend['buy'], recommend['hold'], recommend['sell'], recommend['strongSell']]
-            filepath = "PriceData/" + stock['symbol'] + ".csv"
+                print(e)
+                # Wait and then try again
+                time.sleep(1)
 
-            # Save data for summary csv file
-            if csvdata is None:
-                csvdata = [csvrow]
+        # Get the trading recommendation
+        if quote is not None: 
+            f.write(stock['symbol'] + '\n')
+            print(stock['symbol'])
+            print(quote)
+            if quote['d'] is not None:         
+                recommend = None
+                for i in range(100):
+                    try:
+                        recommend = finnhub_client.recommendation_trends(stock['symbol'])[0]
+                        break
+                    except IndexError:
+                        break
+                    except finnhub.exceptions.FinnhubAPIException as e:
+                        print(e)
+                        if (e.status_code == 429):
+                            # Because I'm using the free API, I'm limited to one API call per second. I exceeded the limit, so wait
+                            time.sleep(10)
+                        else:
+                            # Reestablish client connection
+                            finnhub_client = finnhub.Client(api_key=APIKEY)
+                    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
+                        print(e)
+                        # Wait and then try again
+                        time.sleep(1)
+                    else:
+                        print(e)
+                        # Wait and then try again
+                        time.sleep(1)
+                if recommend is not None:
+                    print(recommend)
+                # To give feedback
+                f.write(stock['symbol'] + ": " + str(quote['c']))
+                print(stock['symbol'] + ": " + str(quote['c']))
+                if recommend is None:
+                    f.write("No Recommendation")
+                    print("No Recommendation")
+                    csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], "None", "0", "0", "0", "0", "0"]
+                else:
+                    csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], recommend['period'], recommend['strongBuy'], recommend['buy'], recommend['hold'], recommend['sell'], recommend['strongSell']]
+                filepath = "PriceData/" + stock['symbol'] + ".csv"
+
+                # Save data for summary csv file
+                if csvdata is None:
+                    csvdata = [csvrow]
+                else:
+                    csvdata.append(csvrow)
+                
+                #Save individual csv file for each stock symbol
+                if os.path.exists(filepath):
+                    # If file exists, open CSV as append
+                    with open(filepath, 'a', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        # Write data to end of file
+                        writer.writerow(csvrow)
+                else:
+                    # File does not exist, open CSV as write
+                    with open(filepath, 'w', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        # Write header row
+                        writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
+                        # Write data
+                        writer.writerow(csvrow)
             else:
-                csvdata.append(csvrow)
-            
-            #Save individual csv file for each stock symbol
-            if os.path.exists(filepath):
-                # If file exists, open CSV as append
-                with open(filepath, 'a', newline='') as csvfile:
-                    writer = csv.writer(csvfile)
-                    # Write data to end of file
-                    writer.writerow(csvrow)
-            else:
-                # File does not exist, open CSV as write
-                with open(filepath, 'w', newline='') as csvfile:
-                    writer = csv.writer(csvfile)
-                    # Write header row
-                    writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
-                    # Write data
-                    writer.writerow(csvrow)
-        else:
-            print("Quote is empty")
-            f.write("Quote is empty\n")
+                print("Quote is empty")
+                f.write("Quote is empty\n")
 
-# Save the summary CSV file with all of the stock information
-filepath = "stockQuotes.csv"
-print(csvdata)
-if os.path.exists(filepath):
-    # If file exists, open CSV as append
-    with open(filepath, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        # Write data to end of file
-        writer.writerows(csvdata)
-else:
-    # File does not exist, open CSV as write
-    with open(filepath, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        # Write header row
-        writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
-        # Write data
-        writer.writerows(csvdata)
+    # Save the summary CSV file with all of the stock information
+    filepath = "stockQuotes.csv"
+    print(csvdata)
+    if os.path.exists(filepath):
+        # If file exists, open CSV as append
+        with open(filepath, 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            # Write data to end of file
+            writer.writerows(csvdata)
+    else:
+        # File does not exist, open CSV as write
+        with open(filepath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            # Write header row
+            writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
+            # Write data
+            writer.writerows(csvdata)
 
-# Finish timing of execution and add it to the log
-endTime = time.time()
-duration = endTime - startTime
-print(duration)
-f.write(str(duration) + '\n')
-f.close()
+    # Finish timing of execution and add it to the log
+    endTime = time.time()
+    duration = endTime - startTime
+    print(duration)
+    f.write(str(duration) + '\n')
+    f.close()
 
 # Financials as reported
 #print(finnhub_client.financials_reported(symbol='AAPL', freq='annual'))
@@ -361,58 +367,58 @@ for stock in unique_stocks:
     # the stock list. The idea is that the r^2 value multiplied by the trendline slope gives a worst case approximation of the growth
     # or the growth that you could expect with the volatility removed from the data. It essentially measures "predictable growth"
     # of the stock or "consistent linear growth" of the stock over the period analyzed.
-    if not(np.isnan(lower_bound_slp)) and not(np.isnan(r_value)):
-        if (lower_bound_slp > 0) and (growth > 0) and (len(stockDate) > (0.5 * 32)):
-            stockSummary.append([stock, first_value, last_value, min_value, avg_value, max_value, 
-                growth*100, slp, r_value*r_value, lower_bound_slp, min_time_str, max_time_str, confidence])
+    stockCount = len(set(stockDate))
+    if (stockCount > (0.4 * 32)) and not(np.isnan(lower_bound_slp)) and not(np.isnan(r_value)) and (lower_bound_slp > 0) and (growth > 0):
+        stockSummary.append([stock, first_value, last_value, min_value, avg_value, max_value, 
+            growth*100, slp, r_value*r_value, lower_bound_slp, min_time_str, max_time_str, confidence])
 
-            # 2. Create the regression plot with a 95% confidence interval
-            x = [(i - min_time) / (max_time - min_time) for i in stockDate]
-            y = [ i / avg_value for i in stockPrice]
-            result = linregress(x, y)
-            slope = result.slope
-            intercept = result.intercept
-            r_value = result.rvalue
-            p_value = result.pvalue
-            std_err_slope = result.stderr
-            std_err_intercept = result.intercept_stderr
-            # Calculate the critical value for a two-tailed test at 95% confidence level
-            critical_value = t.ppf(1-0.05/2, len(stockPrice) - 2)
-            # Calculate the lower bound slope
-            upper_bound_slope = slope + (std_err_slope * critical_value)
-            lower_bound_slope = slope - (std_err_slope * critical_value)
-            # Calculate the lower bound intercept
-            upper_bound_intercept = intercept + (std_err_intercept * critical_value)
-            lower_bound_intercept = intercept - (std_err_intercept * critical_value)
-            plt.figure(figsize=(8, 6))
-            plt.xlim(0, 1) 
-            plt.plot(x, y, label='Stock Price')  # Plot the original data points
+        # 2. Create the regression plot with a 95% confidence interval
+        x = [(i - min_time) / (max_time - min_time) for i in stockDate]
+        y = [ i / avg_value for i in stockPrice]
+        result = linregress(x, y)
+        slope = result.slope
+        intercept = result.intercept
+        r_value = result.rvalue
+        p_value = result.pvalue
+        std_err_slope = result.stderr
+        std_err_intercept = result.intercept_stderr
+        # Calculate the critical value for a two-tailed test at 95% confidence level
+        critical_value = t.ppf(1-0.05/2, len(stockPrice) - 2)
+        # Calculate the lower bound slope
+        upper_bound_slope = slope + (std_err_slope * critical_value)
+        lower_bound_slope = slope - (std_err_slope * critical_value)
+        # Calculate the lower bound intercept
+        upper_bound_intercept = intercept + (std_err_intercept * critical_value)
+        lower_bound_intercept = intercept - (std_err_intercept * critical_value)
+        plt.figure(figsize=(8, 6))
+        plt.xlim(0, 1) 
+        plt.plot(x, y, label='Stock Price')  # Plot the original data points
 
-            # Calculate x values for the trend line
-            x_trend = np.array([0,1])
+        # Calculate x values for the trend line
+        x_trend = np.array([0,1])
 
-            # Create the trend line
-            y_trend = slope * x_trend + intercept
-            lower_y_trend = lower_bound_slope * (x_trend) + upper_bound_intercept
-            upper_y_trend = upper_bound_slope * (x_trend) + lower_bound_intercept
+        # Create the trend line
+        y_trend = slope * x_trend + intercept
+        lower_y_trend = lower_bound_slope * (x_trend) + upper_bound_intercept
+        upper_y_trend = upper_bound_slope * (x_trend) + lower_bound_intercept
 
-            plt.plot(x_trend, y_trend, 'r-', label=f'Trend Line Slope ({slope:.2f})')
+        plt.plot(x_trend, y_trend, 'r-', label=f'Trend Line Slope ({slope:.2f})')
 
-            # Plot the 95% confidence interval bounds for slope and intercept
-            plt.plot(x_trend, lower_y_trend, 'b--', label=f'Lower-Bound Slope ({lower_bound_slope:.2f})')
-            plt.plot(x_trend, upper_y_trend, 'g--', label=f'Upper-Bound Slope ({upper_bound_slope:.2f})')
+        # Plot the 95% confidence interval bounds for slope and intercept
+        plt.plot(x_trend, lower_y_trend, 'b--', label=f'Lower-Bound Slope ({lower_bound_slope:.2f})')
+        plt.plot(x_trend, upper_y_trend, 'g--', label=f'Upper-Bound Slope ({upper_bound_slope:.2f})')
 
-            sns.regplot(x=x, y=y, ci=95,  truncate=False, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
+        sns.regplot(x=x, y=y, ci=95,  truncate=False, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
 
-            # 3. Customize the plot (optional)
-            plt.title(stock + "\n Linear Regression and 95% Confidence Interval")
-            plt.xlabel("Normalized Period")
-            plt.ylabel("Normalized Stock Price (Stock Price / Average Stock Price)")
-            plt.grid(True, linestyle='--', alpha=0.7)
-            plt.legend()
-            # Save the plot as an image instead of displaying it on the screen
-            plt.savefig(stock + '.png', dpi=100)  # Adjust 'linear_regression_plot' to your desired filename and 'dpi=300' for resolution
-            plt.close()
+        # 3. Customize the plot (optional)
+        plt.title(stock + "\n Linear Regression and 95% Confidence Interval")
+        plt.xlabel("Normalized Period")
+        plt.ylabel("Normalized Stock Price (Stock Price / Average Stock Price)")
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend()
+        # Save the plot as an image instead of displaying it on the screen
+        plt.savefig(stock + '.png', dpi=100)  # Adjust 'linear_regression_plot' to your desired filename and 'dpi=300' for resolution
+        plt.close()
 
 
 # Sort the stock summary data by the "Confident Normalized Slope", which is the 10th column in the data
@@ -453,7 +459,7 @@ with open(htmlpath, "w") as f:
     f.write("</style></head>\n")
     # Write the HTML body
     f.write("<body>\n")
-    f.write("<center><table width=1500>\n")
+    f.write("<center><table width=80%>\n")
     f.write("<tr><td>\n")
     f.write("<h1 align=\"left\">Bandwagon Stock List</h1>\n")
     f.write("<h2 align=\"left\">Join the Bandwagon</h2>\n")
