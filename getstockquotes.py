@@ -20,9 +20,10 @@
 #
 # Author: Jonathan Weaver, jonw0224@gmail.com
 #
-# Date: 10/04/2025
+# Date: 10/11/2025
 #
-# Version: 
+# Version:
+#  
 # 1.00 - 2024-11-08 - Wrote code
 # 1.01 - 2024-11-09 - Added error correction for robustness of internet
 #                     connection and finnhub API timeouts. 
@@ -30,6 +31,13 @@
 #                     page that list stocks in order of preference.
 # 1.03 - 2025-10-04 - Enhanced the stock analysis and added analysis image
 #                     generation
+# 1.04 - 2025-10-11 - Added high, low, open, and close to the regression
+#                     analysis and plots. Added rolling file data in 
+#                     stockQuotes.csv and archiving each year in 
+#                     stockQuotes2025.csv, etc. Added check for PriceData
+#                     directory. Adds the directory if it doesn't exist.
+#                     Change order of columns in the stocks.html file so
+#                     that it can be navigated better on a mobile device.
 #
 # Copyright (C) 2025 Jonathan Weaver
 #
@@ -48,8 +56,10 @@
 #
 ###############################################################################
 
-########################################################################################################################
+###############################################################################
 # Import library and interface files
+###############################################################################
+
 from collections import OrderedDict
 import numpy as np
 import finnhub
@@ -61,9 +71,10 @@ from scipy.stats import linregress, t
 from operator import itemgetter, attrgetter
 import matplotlib.pyplot as plt
 import seaborn as sns
-########################################################################################################################
 
+###############################################################################
 # Global variables
+###############################################################################
 
 APIKEY = "FINNHUBAPI"
 
@@ -75,12 +86,45 @@ htmlpath = "stocks.html"
 # Should be set to True while in production
 getPrices = True
 
-########################################################################################################################
-# Get the Stock Prices
-########################################################################################################################
-
 # Time execution
 startTime = time.time()
+
+###############################################################################
+# Purge the stock quotes CSV file to only use the most recent quotes
+###############################################################################
+
+# We want to look back 180 days
+activefile_days = 180
+activefile_querytime = startTime - 24*60*60*activefile_days
+queryRows = [];
+if os.path.exists(filepath):
+    # If file exists, open the stock file
+    with open(filepath, 'r', newline='') as csvfile:
+        # Read in the CSV data
+        reader = csv.reader(csvfile)
+        # Process each row
+        for row in reader:
+            # Handle errors
+            try:
+                # Only consider the most recent 180 days
+                if(float(row[0]) > activefile_querytime):
+                    # Add the row to the query
+                    queryRows.append(row)
+            # Respond to the errors
+            except ValueError:
+                print(f"Error: Unable to convert '{row[0]}' to a float.")
+    # Overwrite the CSV file, keeping only data within the last 180 days
+    with open(filepath, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        # Write header row
+        writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
+        # Write data
+        writer.writerows(queryRows)
+
+###############################################################################
+# Get the Stock Prices
+###############################################################################
+
 # Setup client and connect to finnhub
 finnhub_client = finnhub.Client(api_key=APIKEY)
 
@@ -182,14 +226,27 @@ if(getPrices == True):
                     csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], "None", "0", "0", "0", "0", "0"]
                 else:
                     csvrow = [quote['t'], time.ctime(quote['t']), stock['symbol'], quote['h'], quote['l'], quote['o'], quote['pc'], recommend['period'], recommend['strongBuy'], recommend['buy'], recommend['hold'], recommend['sell'], recommend['strongSell']]
-                filepath = "PriceData/" + stock['symbol'] + ".csv"
 
                 # Save data for summary csv file
                 if csvdata is None:
                     csvdata = [csvrow]
                 else:
                     csvdata.append(csvrow)
-                
+
+                directory_path = "PriceData"
+                filepath = directory_path + "/" + stock['symbol'] + ".csv"
+    
+                # Check if the directory exists
+                if not os.path.exists(directory_path):
+                    try:
+                        # Create the directory
+                        os.makedirs(directory_path)
+                        print(f"Directory '{directory_path}' created.")
+                    except OSError as e:
+                        print(f"Error creating directory: {e}")
+                else:
+                    print(f"'{directory_path}' already exists.")
+
                 #Save individual csv file for each stock symbol
                 if os.path.exists(filepath):
                     # If file exists, open CSV as append
@@ -227,6 +284,23 @@ if(getPrices == True):
             # Write data
             writer.writerows(csvdata)
 
+    # Save the summary CSV file for each year as well
+    filepath = "stockQuotes" + time.strftime("%Y") + ".csv"
+    if os.path.exists(filepath):
+        # If file exists, open CSV as append
+        with open(filepath, 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            # Write data to end of file
+            writer.writerows(csvdata)
+    else:
+        # File does not exist, open CSV as write
+        with open(filepath, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            # Write header row
+            writer.writerow(['Time UNIX Seconds', 'Time Stamp', 'Symbol', 'High', 'Low', 'Open', 'Previous Close', 'Recommend Period', 'Strong Buy', 'Buy', 'Hold', 'Sell', 'Strong Sell'])
+            # Write data
+            writer.writerows(csvdata)
+
     # Finish timing of execution and add it to the log
     endTime = time.time()
     duration = endTime - startTime
@@ -237,14 +311,19 @@ if(getPrices == True):
 # Financials as reported
 #print(finnhub_client.financials_reported(symbol='AAPL', freq='annual'))
 
-########################################################################################################################
+###############################################################################
 # Create the report
-########################################################################################################################
+###############################################################################
 
+# File paths
+filepath = "stockQuotes.csv"
+htmlpath = "stocks.html"
 
 # Thirty two days into the past
 now = time.time()
 lookback_days = 32
+activefile_days = 180
+activefile_querytime = now - 24*60*60*activefile_days
 querytime = now - 24*60*60*lookback_days
 queryRows = [];
 
@@ -293,8 +372,21 @@ for stock in unique_stocks:
         if row[2] == stock:
             # Scale the stock date by day
             stockDate.append(float(row[0])/60/60/24)
-            # Save the stock price
+            # Save the low stock price
+            stockPrice.append(float(row[3]))
+            # Scale the stock date by day
+            stockDate.append(float(row[0])/60/60/24)
+            # Save the high stock price
+            stockPrice.append(float(row[4]))
+            # Scale the stock date by day
+            stockDate.append(float(row[0])/60/60/24)
+            # Save the open stock price
             stockPrice.append(float(row[5]))
+            # Scale the stock date by day
+            stockDate.append(float(row[0])/60/60/24)
+            # Save the previous close stock price
+            stockPrice.append(float(row[6]))
+
             # Calculate the confidence
             confidence = float(row[8])*2 + float(row[9]) - float(row[11]) - float(row[12])*2
     # Perform the linear regression, print error message in the event of an error
@@ -392,7 +484,8 @@ for stock in unique_stocks:
         lower_bound_intercept = intercept - (std_err_intercept * critical_value)
         plt.figure(figsize=(8, 6))
         plt.xlim(0, 1) 
-        plt.plot(x, y, label='Stock Price')  # Plot the original data points
+        plt.plot(x[2::4], y[2::4], label='Stock Price')  # Plot the original data points
+        plt.fill_between(x[::4], y[::4], y[1::4], alpha=0.2)
 
         # Calculate x values for the trend line
         x_trend = np.array([0,1])
@@ -474,8 +567,8 @@ with open(htmlpath, "w") as f:
     # Write the stock table
     f.write("<table width=100%>\n")
     # Write the table header
-    f.write("<thead><tr><th>Symbol</th><th>First</th><th>Last</th><th>Min</th><th>Avg</th><th>Max</th><th>Percent<br>Growth</th>")
-    f.write("<th>Normalized<br>Slope</th><th>R<sup>2</sup> Value</th><th>Lower-bound<br>Normalized<br>Slope<br>(95% Confidence)</th>")
+    f.write("<thead><tr><th>Symbol</th><th>Lower-bound<br>Normalized<br>Slope<br>(95% Confidence)</th><th>Normalized<br>Slope</th><th>R<sup>2</sup> Value</th>")
+    f.write("<th>Percent<br>Growth</th><th>First</th><th>Last</th><th>Min</th><th>Avg</th><th>Max</th>")
     f.write("<th>Period Start</th><th>Period Stop</th><th>Investor Grade</th></tr></thead>")
     # Write the table values
     for stock in sortedStockSummary:
@@ -483,16 +576,16 @@ with open(htmlpath, "w") as f:
         f.write("<tr><td>")
         f.write("<a href=\"https://robinhood.com/stocks/" + stock[0] + "?source=search\" target=\"_blank\">" + stock[0] + "</a>")
         f.write("</td><td style=\"text-align: right;\">")
-        for i in range(1,6):
-            f.write(f"{stock[i]:.2f}")
-            f.write("</td><td style=\"text-align: right;\">")
-        f.write(f"{stock[6]:.1f}")
+        f.write("<b><a href=\"" + stock[0] + f".png\" target=\"_blank\">{stock[9]:.2f}</a></b>")
         f.write("</td><td style=\"text-align: right;\">")
         for i in range(7,9):
             f.write(f"{stock[i]:.2f}")
             f.write("</td><td style=\"text-align: right;\">")
-        f.write("<b><a href=\"" + stock[0] + f".png\" target=\"_blank\">{stock[9]:.2f}</a></b>")
+        f.write(f"{stock[6]:.1f}")
         f.write("</td><td style=\"text-align: right;\">")
+        for i in range(1,6):
+            f.write(f"{stock[i]:.2f}")
+            f.write("</td><td style=\"text-align: right;\">")
         f.write(stock[10])
         f.write("</td><td style=\"text-align: right;\">")
         f.write(stock[11])

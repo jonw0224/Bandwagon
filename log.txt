@@ -1,0 +1,227 @@
+Number of stocks: 29473
+SRBZF
+Quote is empty
+ILPMF
+ILPMF: 2.79GEO
+GEO: 17.69KAPA
+KAPA: 1.16DWM
+DWM: 64.9972No RecommendationICPY
+ICPY: 9.99No RecommendationSEPP
+SEPP: 29.5728No RecommendationCICHF
+CICHF: 0.89788CRGO
+CRGO: 3.49ALLE
+ALLE: 173.29PHB
+PHB: 18.4392No RecommendationGWBK
+GWBK: 0.0737No RecommendationFANCF
+FANCF: 0.1416No RecommendationHWTR
+Quote is empty
+KALU
+KALU: 76.68FBPA
+FBPA: 26.75No RecommendationDRDBU
+DRDBU: 10.67No RecommendationIVOG
+IVOG: 115.95No RecommendationBTIM
+BTIM: 0.0001No RecommendationMGOYF
+Quote is empty
+IVT
+IVT: 27.24BAER
+BAER: 1.62RVDRS
+Quote is empty
+EVRSF
+Quote is empty
+PUMSY
+PUMSY: 2.461GRP.U
+GRP.U: 54.43MPEVF
+Quote is empty
+DLTA
+DLTA: 1e-06No RecommendationDMRR
+Quote is empty
+PDM
+PDM: 7.99DXIV
+DXIV: 60.2722No RecommendationSPNRF
+SPNRF: 0.03No RecommendationEPOW
+EPOW: 1.25No RecommendationHEDJ
+HEDJ: 50.28No RecommendationATER
+ATER: 1.05IPEU
+Quote is empty
+ITSXF
+Quote is empty
+PENMF
+PENMF: 0.42BCTXW
+BCTXW: 0.0581No RecommendationSONG
+SONG: 0.0002No RecommendationLBSR
+LBSR: 0.05No RecommendationIDLV
+IDLV: 32.87No RecommendationGCAN
+GCAN: 0.0002No RecommendationKGHZF
+Quote is empty
+HUWWF
+HUWWF: 3.08PBYEF
+Quote is empty
+IMG
+IMG: 0.2446PBNK
+PBNK: 20.35No RecommendationCBUIF
+Quote is empty
+MGAWF
+Quote is empty
+KURE
+KURE: 19.48No RecommendationROYUF
+Quote is empty
+BAINF
+BAINF: 2OMH
+OMH: 1.28MLGAF
+Quote is empty
+JTAI
+JTAI: 2.68MSILF
+MSILF: 17.533No RecommendationUNIR
+Quote is empty
+EGPLF
+EGPLF: 0.11332No RecommendationFPPRBX
+Quote is empty
+EPMV
+EPMV: 21.6795No RecommendationTKLLF
+Quote is empty
+MOBO
+MOBO: 1e-06No RecommendationIPCXU
+IPCXU: 10.43No RecommendationLSF
+LSF: 5.35DD
+DD: 73.7AMD
+AMD: 214.9BSAAR
+BSAAR: 0.15No RecommendationBGL
+BGL: 9.83No RecommendationRARE
+RARE: 31.45FUJHY
+FUJHY: 9.59SLSCF
+Quote is empty
+FOUR.PRA
+FOUR.PRA: 95.46PUPOF
+Quote is empty
+CWEN
+CWEN: 31.15PFLT
+PFLT: 8.51SKTPP
+Quote is empty
+JAGL
+JAGL: 0.03No RecommendationHRFEF
+HRFEF: 0.06No RecommendationMCSE
+MCSE: 14.0925No RecommendationNJUL
+NJUL: 70.3994No RecommendationRWCRF
+RWCRF: 0.382No RecommendationUMGNF
+UMGNF: 27.1NKSH
+NKSH: 27.66PRPRF
+PRPRF: 0.01928SZZLU
+SZZLU: 10.3No RecommendationLYYXF
+Quote is empty
+LGMK
+LGMK: 0.0034LRCX
+LRCX: 131.37BNXAF
+BNXAF: 0.7834MTTWF
+MTTWF: 6.18PHKIF
+Quote is empty
+BUSA
+BUSA: 34No RecommendationGSIE
+GSIE: 40.41No RecommendationMMTM
+MMTM: 279.4262No RecommendationMITT
+MITT: 6.95SOOBF
+Quote is empty
+FATLF
+Quote is empty
+GAYMF
+GAYMF: 0.483AHODF
+AHODF: 41.25EMBKF
+Quote is empty
+MYBUF
+MYBUF: 0.0002DRETF
+DRETF: 14.6SHG
+SHG: 49.33AOR
+AOR: 63.43No RecommendationMNYFF
+Quote is empty
+CGON
+CGON: 43.25TBF
+TBF: 23.39No RecommendationBOTJ
+BOTJ: 15.7625No RecommendationTSRYY
+TSRYY: 4.43ORBS
+ORBS: 9.84No RecommendationHOMU
+HOMU: 0.0001No RecommendationATEST.B
+Quote is empty
+RCT
+RCT: 1.69TBRIF
+TBRIF: 0.0338No RecommendationCDBDF
+CDBDF: 0.012No RecommendationADNGF
+Quote is empty
+PTRUF
+PTRUF: 1.222SHYM
+SHYM: 22.12No RecommendationCYDVF
+CYDVF: 0.229PPH
+PPH: 92.11GAFC
+Quote is empty
+EWLL
+EWLL: 1e-06No RecommendationGSUN
+GSUN: 2.61No RecommendationAQWA
+AQWA: 19.1645No RecommendationPUTRY
+PUTRY: 4.66RSELS
+Quote is empty
+ISHLF
+Quote is empty
+NGSCF
+Quote is empty
+WCUI
+WCUI: 1e-06No RecommendationHRZSF
+HRZSF: 56.27No RecommendationPSA.PRH
+PSA.PRH: 24.23APYRF
+APYRF: 13.48REZNF
+REZNF: 0.0057No RecommendationCYFL
+CYFL: 48No RecommendationBHST
+BHST: 11.04MARPS
+MARPS: 4.87No RecommendationFNB
+FNB: 15.26EVE.U
+Quote is empty
+QARP
+QARP: 55.8492No RecommendationNPRFF
+NPRFF: 0.108No RecommendationCLM
+CLM: 8.25No RecommendationASG
+ASG: 5.4No RecommendationBLDV
+BLDV: 0.0002No RecommendationSLDX
+SLDX: 0.02No RecommendationNPPNY
+NPPNY: 5.3NGL
+NGL: 6.11GMETF
+GMETF: 0.008No RecommendationHONT
+HONT: 120No RecommendationMBLY
+MBLY: 14.24VICT
+Quote is empty
+MXTFS
+Quote is empty
+SFBS
+SFBS: 76.76PYPL
+PYPL: 69.84ARMC
+Quote is empty
+OLNK
+Quote is empty
+ZMAY
+ZMAY: 25.09No RecommendationVECT
+Quote is empty
+MTAVF
+Quote is empty
+CDJM
+Quote is empty
+MKCLF
+Quote is empty
+FDS
+FDS: 283.13SHCMF
+SHCMF: 0.36695No RecommendationSFRGY
+SFRGY: 3.505QBBHY
+Quote is empty
+NWLG
+NWLG: 37.252No RecommendationTRND
+TRND: 33.0021No RecommendationRIBB
+RIBB: 10.25No RecommendationBGB
+BGB: 11.85No RecommendationCMOXF
+Quote is empty
+EPRF
+EPRF: 17.9901No RecommendationXENE
+XENE: 39.64COYJF
+Quote is empty
+HOVR
+HOVR: 2.87GRARF
+Quote is empty
+UCBJF
+UCBJF: 305.09GAME
+GAME: 0.7183HOVNP
+HOVNP: 20.52BKRKY
+BKRKY: 10.8
