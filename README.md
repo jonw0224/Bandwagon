@@ -12,7 +12,7 @@ To develop an automated method of analyzing stocks and identify high growth and 
 
 # Disclaimer
 
-The stock list information or output of this program is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. Investing in the stock market carries risks, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.
+The stock list information (https://stocks.jseeeweaver.cc) or output of this program is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. Investing in the stock market carries risks, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.
 
 <br/>
 
