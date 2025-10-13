@@ -4,7 +4,19 @@
 <br/><br/>
 
 
-# Purpose and Methodology
+# Purpose
+
+To develop an automated method of analyzing stocks and identify high growth and low volatility stocks to guide my stock purchase and sales decisions. I use the Robinhood platform and only purchase a few shares each month and generally hold the shares I buy. This is not a daytrading tool or a stock recommendation tool.
+
+<br/>
+
+# Disclaimer
+
+The stock list information or output of this program is for informational purposes only and should not be considered investment advice. Past performance is not indicative of future gains. Investing in the stock market carries risks, and it's possible that any or all of these stocks could decline in value. It's essential to do your own research, set clear goals, and consider your risk tolerance before making any investment decisions.
+
+<br/>
+
+# Methodology
 
 Bandwagon is a Python Script that uses the finnhub API (https://finnhub.io/ and https://github.com/Finnhub-Stock-API/finnhub-python) to record and analyze stock prices. The script uses the following steps:
 
@@ -59,3 +71,5 @@ I publish the report daily on my webserver. The included shell file includes lin
 # License
 
 GPL 3.0
+
+<br/>
