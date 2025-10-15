@@ -3,4 +3,6 @@ PriceData/
 *.ods
 *.xlsx
 *.log
+*.png
+log.txt
 key.txt

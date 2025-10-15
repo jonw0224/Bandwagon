@@ -20,7 +20,7 @@
 #
 # Author: Jonathan Weaver, jonw0224@gmail.com
 #
-# Date: 10/11/2025
+# Date: 10/14/2025
 #
 # Version:
 #  
@@ -38,6 +38,7 @@
 #                     directory. Adds the directory if it doesn't exist.
 #                     Change order of columns in the stocks.html file so
 #                     that it can be navigated better on a mobile device.
+# 1.05 - 2025-10-14 - Added Google Analytics Tag to the HTML header.
 #
 # Copyright (C) 2025 Jonathan Weaver
 #
@@ -77,6 +78,7 @@ import seaborn as sns
 ###############################################################################
 
 APIKEY = "FINNHUBAPI"
+GOOGLETAGID = ""
 
 # File paths
 filepath = "stockQuotes.csv"
@@ -549,7 +551,19 @@ with open(htmlpath, "w") as f:
     f.write("       tr:nth-child(odd) { background-color: #222; color: #fff;}\n")
     f.write("       tr:nth-child(even) { background-color: #333; color: #fff;}\n")
     f.write("   }\n")
-    f.write("</style></head>\n")
+    f.write("</style>\n")
+
+    # Google analytics
+    if(GOOGLETAGID != ""):
+        f.write("<!-- Google tag (gtag.js) --> \n")
+        f.write("<script async src=\"<https://www.googletagmanager.com/gtag/js?id=" + GOOGLETAGID + "\"></script>\n")
+        f.write("<script>\n")
+        f.write("   window.dataLayer = window.dataLayer || [];\n\n")
+        f.write("   function gtag(){dataLayer.push(arguments);}\n")   
+        f.write("   gtag('js', new Date()); \n\n")
+        f.write("   gtag('config', '" + GOOGLETAGID + "');\n")
+        f.write("</script>\n")
+    f.write("</head>\n")
     # Write the HTML body
     f.write("<body>\n")
     f.write("<center><table width=80%>\n")
