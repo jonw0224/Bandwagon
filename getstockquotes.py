@@ -616,4 +616,15 @@ with open(htmlpath, "w") as f:
     # Finish the HTML body
     f.write("</body></html>")
 
+# Write the sitemap.xml file
+with open("sitemap.xml", "w") as f:
+    f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+    f.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
+    f.write("<url>\n")
+    f.write("   <loc>https://stocks.jseeeweaver.cc/</loc>\n")
+    f.write("   <lastmod>" + time.strftime("%Y-%m-%d", time.localtime()) + "</lastmod>\n")
+    f.write("   <changefreq>daily</changefreq>\n")
+    f.write("   <priority>1.0</priority>\n")
+    f.write("</url>\n")
+    f.write("</urlset>\n")
 #
