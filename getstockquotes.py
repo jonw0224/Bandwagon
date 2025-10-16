@@ -20,7 +20,7 @@
 #
 # Author: Jonathan Weaver, jonw0224@gmail.com
 #
-# Date: 10/14/2025
+# Date: 10/15/2025
 #
 # Version:
 #  
@@ -39,6 +39,7 @@
 #                     Change order of columns in the stocks.html file so
 #                     that it can be navigated better on a mobile device.
 # 1.05 - 2025-10-14 - Added Google Analytics Tag to the HTML header.
+# 1.06 - 2025-10-15 - Added sitemap.xml generation.
 #
 # Copyright (C) 2025 Jonathan Weaver
 #
@@ -79,6 +80,8 @@ import seaborn as sns
 
 APIKEY = "FINNHUBAPI"
 GOOGLETAGID = ""
+
+DOMAINNAME = "https://stocks.jseeeweaver.cc/"
 
 # File paths
 filepath = "stockQuotes.csv"
@@ -484,7 +487,7 @@ for stock in unique_stocks:
         # Calculate the lower bound intercept
         upper_bound_intercept = intercept + (std_err_intercept * critical_value)
         lower_bound_intercept = intercept - (std_err_intercept * critical_value)
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(16, 9))
         plt.xlim(0, 1) 
         plt.plot(x[2::4], y[2::4], label='Stock Price')  # Plot the original data points
         plt.fill_between(x[::4], y[::4], y[1::4], alpha=0.2)
@@ -621,7 +624,7 @@ with open("sitemap.xml", "w") as f:
     f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
     f.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
     f.write("<url>\n")
-    f.write("   <loc>https://stocks.jseeeweaver.cc/</loc>\n")
+    f.write("   <loc>" + DOMAINNAME + "</loc>\n")
     f.write("   <lastmod>" + time.strftime("%Y-%m-%d", time.localtime()) + "</lastmod>\n")
     f.write("   <changefreq>daily</changefreq>\n")
     f.write("   <priority>1.0</priority>\n")
