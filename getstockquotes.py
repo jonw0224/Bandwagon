@@ -559,7 +559,7 @@ with open(htmlpath, "w") as f:
     # Google analytics
     if(GOOGLETAGID != ""):
         f.write("<!-- Google tag (gtag.js) --> \n")
-        f.write("<script async src=\"<https://www.googletagmanager.com/gtag/js?id=" + GOOGLETAGID + "\"></script>\n")
+        f.write("<script async src=\"https://www.googletagmanager.com/gtag/js?id=" + GOOGLETAGID + "\"></script>\n")
         f.write("<script>\n")
         f.write("   window.dataLayer = window.dataLayer || [];\n\n")
         f.write("   function gtag(){dataLayer.push(arguments);}\n")   
